@@ -1,0 +1,2 @@
+# ReactNative-FashionShop
+- No Redux
