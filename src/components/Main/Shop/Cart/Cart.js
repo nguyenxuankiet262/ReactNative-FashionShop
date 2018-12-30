@@ -1,29 +1,20 @@
 import React, { Component } from 'react';
 import {
-    View, Text, TouchableOpacity, FlatList,
+    View, Text, TouchableOpacity, FlatList, ActivityIndicator,
     Dimensions, StyleSheet, Image
 } from 'react-native';
-
-import sp1 from '../../.././../media/temp/sp1.jpeg';
 
 function toTitleCase(str) {
     return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 }
 
+const url = 'http://192.168.1.4/app/images/product/';
+
 class Cart extends Component {
     constructor() {
         super();
         this.state = {
-            listCart: [
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-                { Name: 'Lace Sleeve Si', Price: '117' },
-            ],
+            isLoading: true,
         }
     }
 
@@ -33,26 +24,26 @@ class Cart extends Component {
             txtShowDetail, showDetailContainer } = styles;
         return (
             <TouchableOpacity onPress={() => {
-                this.props.navigation.navigate('ProductDetailScreen')
+                this.props.navigation.navigate('ProductDetailScreen', { product: item })
             }}>
                 <View style={product}>
-                    <Image source={sp1} style={productImage} />
+                    <Image source={{ uri: url + item.images[0] }} style={productImage} />
                     <View style={[mainRight]}>
                         <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-                            <Text style={txtName}>{toTitleCase(item.Name)}</Text>
+                            <Text style={txtName}>{toTitleCase(item.name)}</Text>
                             <TouchableOpacity>
                                 <Text style={{ fontFamily: 'Avenir', color: '#969696' }}>X</Text>
                             </TouchableOpacity>
                         </View>
                         <View>
-                            <Text style={txtPrice}>{item.Price}$</Text>
+                            <Text style={txtPrice}>{item.price}$</Text>
                         </View>
                         <View style={productController}>
                             <View style={numberOfProduct}>
                                 <TouchableOpacity>
                                     <Text>+</Text>
                                 </TouchableOpacity>
-                                <Text>{3}</Text>
+                                <Text>{item.quantity}</Text>
                                 <TouchableOpacity>
                                     <Text>-</Text>
                                 </TouchableOpacity>
@@ -64,18 +55,34 @@ class Cart extends Component {
                     </View>
                 </View>
             </TouchableOpacity>
-
         )
     }
 
+    componentDidMount(){
+        setTimeout(() => {
+            this.setState({
+                isLoading: false,
+             })
+        },500);
+    }
+
     render() {
-        const { navigate } = this.props.navigation;
         const { wrapper, checkoutButton, checkoutTitle } = styles;
+
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator />
+                </View>
+            )
+        }
+
         return (
             <View style={wrapper}>
                 <FlatList
-                    data={this.state.listCart}
+                    data={this.props.screenProps}
                     renderItem={this.renderItem}
+                    keyExtractor={() => Math.random().toString(36).substr(2, 9)}
                 />
                 <TouchableOpacity style={checkoutButton}>
                     <Text style={checkoutTitle}>TOTAL {1000}$ CHECKOUT NOW</Text>

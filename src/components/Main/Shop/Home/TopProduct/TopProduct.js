@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 
-import sp1 from '../../../../../media/temp/sp1.jpeg';
-import sp2 from '../../../../../media/temp/sp2.jpeg';
-import sp3 from '../../../../../media/temp/sp3.jpeg';
-import sp4 from '../../../../../media/temp/sp4.jpeg';
-
 export default class TopProduct extends Component {
     render() {
         const { navigate } = this.props;
+        const { listTopProduct } = this.props;
         const {
             container, titleContainer, title,
             body, productContainer, productImage,
@@ -19,44 +15,19 @@ export default class TopProduct extends Component {
                 <View style={titleContainer}>
                     <Text style={title}>TOP PRODUCT</Text>
                 </View>
-                <View style={body}>
-                    <TouchableOpacity onPress={() => {
-                        navigate('ListProductScreen')
-                    }}>
-                        <View style={productContainer}>
-                            <Image source={sp1} style={productImage} />
-                            <Text style={produceName}>PRODUCT NAME</Text>
-                            <Text style={producePrice}>400$</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        navigate('ListProductScreen')
-                    }}>
-                        <View style={productContainer}>
-                            <Image source={sp2} style={productImage} />
-                            <Text style={produceName}>PRODUCT NAME</Text>
-                            <Text style={producePrice}>250$</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <View style={{ height: 10, width }} />
-                    <TouchableOpacity onPress={() => {
-                        navigate('ListProductScreen')
-                    }}>
-                        <View style={productContainer}>
-                            <Image source={sp3} style={productImage} />
-                            <Text style={produceName}>PRODUCT NAME</Text>
-                            <Text style={producePrice}>400$</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        navigate('ListProductScreen')
-                    }}>
-                        <View style={productContainer}>
-                            <Image source={sp4} style={productImage} />
-                            <Text style={produceName}>PRODUCT NAME</Text>
-                            <Text style={producePrice}>250$</Text>
-                        </View>
-                    </TouchableOpacity>
+                <View style={body}>{
+                    listTopProduct.map(topProduct => (
+                        <TouchableOpacity onPress={() => {
+                            navigate('ProductDetailScreen', {product: topProduct})
+                        }} key={topProduct.id}>
+                            <View style={productContainer}>
+                                <Image source={{uri: 'http://192.168.1.4/app/images/product/' + topProduct.images[0]}} style={productImage} />
+                                <Text style={produceName}>{topProduct.name.toUpperCase()}</Text>
+                                <Text style={producePrice}>{topProduct.price}$</Text>
+                            </View>
+                        </TouchableOpacity>
+                    ))
+                }
                 </View>
             </View>
         );
@@ -108,6 +79,7 @@ const styles = StyleSheet.create({
         //android
         elevation: 2,
         borderColor: '#2E272B',
+        marginBottom:10,
     },
     productImage: {
         width: produtWidth,

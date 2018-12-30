@@ -18,7 +18,7 @@ const MenuStack = createStackNavigator({
         screen: OrderHistory
     }
 }, {
-    headerMode: 'none'
+    headerMode: 'none',
 });
 
 export default createAppContainer(MenuStack);

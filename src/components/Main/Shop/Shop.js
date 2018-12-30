@@ -15,15 +15,24 @@ import searchIcon from '../../../media/appp/search0.png';
 import contactIconS from '../../../media/appp/contact.png';
 import contactIcon from '../../../media/appp/contact0.png';
 
+import global from '../../global'
+
 class Shop extends Component {
     constructor(props) {
         super(props);
         this.state = {
             selectedTab: 'home',
+            cartArray: [],
         }
+        global.addProductToCart = this.addProductToCart.bind(this);
+    }
+
+    addProductToCart(product) {
+        this.setState({ cartArray: this.state.cartArray.concat(product)});
     }
 
     render() {
+        const { cartArray } = this.state;
         return (
             <View style={{ flex: 1 }}>
                 <Header open={this.props.open} />
@@ -31,21 +40,21 @@ class Shop extends Component {
                     <TabNavigator.Item
                         selected={this.state.selectedTab === 'home'}
                         title="Home"
-                        badgeText="1"
                         renderIcon={() => <Image style={styles.iconStyle} source={homeIcon} />}
                         renderSelectedIcon={() => <Image style={styles.iconStyle} source={homeIconS} />}
                         selectedTitleStyle={{ color: '#34B089' }}
                         onPress={() => this.setState({ selectedTab: 'home' })}>
-                        <HomeStack/>
+                        <HomeStack />
                     </TabNavigator.Item>
                     <TabNavigator.Item
                         selected={this.state.selectedTab === 'cart'}
                         title="Cart"
+                        badgeText={cartArray.length}
                         renderIcon={() => <Image style={styles.iconStyle} source={cartIcon} />}
                         renderSelectedIcon={() => <Image style={styles.iconStyle} source={cartIconS} />}
                         selectedTitleStyle={{ color: '#34B089' }}
                         onPress={() => this.setState({ selectedTab: 'cart' })}>
-                        <CartStack />
+                        <CartStack screenProps={cartArray}/>
                     </TabNavigator.Item>
                     <TabNavigator.Item
                         selected={this.state.selectedTab === 'search'}

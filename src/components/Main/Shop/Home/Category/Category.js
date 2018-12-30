@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import { FlatList, View, Text, ImageBackground, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-swiper';
 
-import littleIcon from '../../../../../media/temp/little.jpg';
-import maxiIcon from '../../../../../media/temp/maxi.jpg';
-import partyIcon from '../../../../../media/temp/party.jpg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,7 +14,6 @@ export default class Category extends Component {
             </View>
         )
     }
-
     render() {
         const { navigate } = this.props;
         const { listCategory } = this.props;
@@ -30,38 +26,17 @@ export default class Category extends Component {
                 </View>
                 <View style={{ justifyContent: 'flex-end', flex: 4 }}>
                     <Swiper autoplay={true} showsPagination showsButtons={true} width={imageWidth} height={imageHeight}>
-                    {
-                        listCategory.map(e => (
-                            <TouchableOpacity onPress={() => {
-                                navigate('ListProductScreen')
-                            }}>
-                                <ImageBackground source={littleIcon} style={imageStyle}>
-                                    <Text style={cateTitle}>Maxi Dress</Text>
-                                </ImageBackground >
-                            </TouchableOpacity>
-                        ))
-                    }
-                        <TouchableOpacity onPress={() => {
-                            navigate('ListProductScreen')
-                        }}>
-                            <ImageBackground source={littleIcon} style={imageStyle}>
-                                <Text style={cateTitle}>Maxi Dress</Text>
-                            </ImageBackground >
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            navigate('ListProductScreen')
-                        }}>
-                            <ImageBackground source={maxiIcon} style={imageStyle}>
-                                <Text style={cateTitle}>Maxi Dress</Text>
-                            </ImageBackground >
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            navigate('ListProductScreen')
-                        }}>
-                            <ImageBackground source={partyIcon} style={imageStyle}>
-                                <Text style={cateTitle}>Maxi Dress</Text>
-                            </ImageBackground >
-                        </TouchableOpacity>
+                        {
+                            listCategory.map(category => (
+                                <TouchableOpacity onPress={() => {
+                                    navigate('ListProductScreen')
+                                }} key={category.id}>
+                                    <ImageBackground source={{uri: 'http://192.168.1.4/app/images/type/' + category.image}} style={imageStyle}>
+                                        <Text style={cateTitle}>{category.name}</Text>
+                                    </ImageBackground >
+                                </TouchableOpacity>
+                            ))
+                        }
                     </Swiper>
                 </View>
             </View>

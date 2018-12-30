@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, ActivityIndicator, Text, View } from 'react-native';
+import { ScrollView, ActivityIndicator, View } from 'react-native';
 import Collection from './Collection/Collection';
 import Category from './Category/Category';
 import TopProduct from './TopProduct/TopProduct';
@@ -10,6 +10,7 @@ class Home extends Component {
         this.state = {
             listCategory: [],
             listTopProduct: [],
+            cartArray:[],
             isLoading: true,
         }
     }
@@ -22,15 +23,14 @@ class Home extends Component {
                 .then((responseJson) => {
                     this.setState({
                         listCategory: responseJson.type,
-                        listTopProduct: responseJson.product,
-                        
+                        listTopProduct: responseJson.product,      
                         isLoading: false,
                     })
                 })
                 .catch((error) => {
                     console.error(error);
                 });
-        }, 1000); 
+        }, 500); 
     }
 
     render() {
