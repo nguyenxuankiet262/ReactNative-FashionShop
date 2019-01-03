@@ -29,7 +29,7 @@ export default class Category extends Component {
                         {
                             listCategory.map(category => (
                                 <TouchableOpacity onPress={() => {
-                                    navigate('ListProductScreen')
+                                    navigate('ListProductScreen',{category: category})
                                 }} key={category.id}>
                                     <ImageBackground source={{uri: 'http://192.168.1.4/app/images/type/' + category.image}} style={imageStyle}>
                                         <Text style={cateTitle}>{category.name}</Text>

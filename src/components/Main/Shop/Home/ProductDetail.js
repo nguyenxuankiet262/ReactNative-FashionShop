@@ -20,6 +20,7 @@ class ProductDetail extends Component {
         } = styles;
 
         const product  = this.props.navigation.getParam('product', 'non');
+        product.quantity = 1;
 
         return (
             <View style={wrapper}>

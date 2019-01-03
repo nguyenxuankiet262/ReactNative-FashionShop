@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, TouchableOpacity, FlatList, View, Image, Dimensions } from 'react-native';
-import sp1 from '../../../../media/temp/sp3.jpeg';
+
+import global from '../../../global';
+
+const url = 'http://192.168.1.4/app/images/product/';
 
 function toTitleCase(str) {
     return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -10,14 +13,16 @@ class Search extends Component {
     constructor() {
         super();
         this.state = {
-            listSearch: [
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-            ],
+            listSearch: [],
         }
+        global.setArraySearch = this.setSearchArray.bind(this);
+    }
+
+    setSearchArray(arrProduct){
+        console.log(arrProduct);
+        this.setState({
+            listSearch: arrProduct,
+        })
     }
 
     renderItem = ({ item }) => {
@@ -28,16 +33,16 @@ class Search extends Component {
         } = styles;
         return (
             <TouchableOpacity onPress={() => {
-                this.props.navigation.navigate('ProductDetailScreen')
+                this.props.navigation.navigate('ProductDetailScreen' , { product: item })
             }}>
                 <View style={product}>
-                    <Image source={sp1} style={productImage} />
+                    <Image source={{ uri: url + item.images[0] }} style={productImage} />
                     <View style={mainRight}>
-                        <Text style={txtName}>{toTitleCase(item.Name)}</Text>
-                        <Text style={txtPrice}>{item.Price}$</Text>
-                        <Text style={txtMaterial}>{item.Material}</Text>
+                        <Text style={txtName}>{toTitleCase(item.name)}</Text>
+                        <Text style={txtPrice}>{item.price}$</Text>
+                        <Text style={txtMaterial}>Material {toTitleCase(item.material)}</Text>
                         <View style={{ flexDirection: 'row' }} >
-                            <Text style={txtColor}>{item.Color}</Text>
+                            <Text style={txtColor}>Color {toTitleCase(item.color)}</Text>
                             <View
                                 style={{
                                     height: 15,
@@ -61,9 +66,10 @@ class Search extends Component {
         const { wrapper } = styles;
         return (
             <View style={wrapper}>
-<FlatList
+                <FlatList
                     data={this.state.listSearch}
                     renderItem={this.renderItem}
+                    keyExtractor={() => Math.random().toString(36).substr(2, 9)}
                 />
             </View>
         );

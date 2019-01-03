@@ -15,7 +15,10 @@ import searchIcon from '../../../media/appp/search0.png';
 import contactIconS from '../../../media/appp/contact.png';
 import contactIcon from '../../../media/appp/contact0.png';
 
-import global from '../../global'
+import global from '../../global';
+
+import saveCart from '../../../api/saveCart';
+import getCart from '../../../api/getCart';
 
 class Shop extends Component {
     constructor(props) {
@@ -25,14 +28,83 @@ class Shop extends Component {
             cartArray: [],
         }
         global.addProductToCart = this.addProductToCart.bind(this);
+        global.incrQuantity = this.incrQuantity.bind(this);
+        global.decrQuantity = this.decrQuantity.bind(this);
+        global.removeProduct = this.removeProduct.bind(this);
+        global.gotoSearch = this.gotoSearch.bind(this);
+        global.updateCart = this.updateCart.bind(this);
+    }
+
+    gotoSearch(){
+        this.setState({
+            selectedTab : 'search'
+        })
     }
 
     addProductToCart(product) {
-        this.setState({ cartArray: this.state.cartArray.concat(product)});
+        this.setState({ cartArray: this.state.cartArray.concat(product)}, () => saveCart(this.state.cartArray));
+    }
+
+    incrQuantity(_index) {
+        const newCart = this.state.cartArray.map((e, index) => {
+            if(index !== _index){
+                return e;
+            }
+            else{
+                if(e.quantity === 10){
+                    e.quantity = e.quantity;
+                }
+                else{
+                    e.quantity = e.quantity + 1;
+                }
+                return e;
+            }
+        });
+        this.setState({ cartArray: newCart }, () => saveCart(this.state.cartArray));
+    }
+
+    decrQuantity(_index) {
+        const newCart = this.state.cartArray.map((e, index) => {
+            if(index !== _index){
+                return e;
+            }
+            else{
+                if(e.quantity == 1){
+                    e.quantity = e.quantity;
+                }
+                else{
+                    e.quantity = e.quantity - 1;
+                }
+                return e;
+            }
+        });
+        this.setState({ cartArray: newCart }, () => saveCart(this.state.cartArray));
+    }
+    
+    removeProduct(_index) {
+        const newCart = this.state.cartArray.filter((e, index) => index !== _index);
+        this.setState({ cartArray: newCart }, 
+            () => saveCart(this.state.cartArray)
+        );
+    }
+
+    updateCart(){
+        getCart()
+        .then(cartArray => this.setState({
+            cartArray
+        }));
+    }
+
+    componentDidMount(){
+        getCart()
+        .then(cartArray => this.setState({
+            cartArray
+        }));
     }
 
     render() {
         const { cartArray } = this.state;
+        console.log(cartArray);
         return (
             <View style={{ flex: 1 }}>
                 <Header open={this.props.open} />

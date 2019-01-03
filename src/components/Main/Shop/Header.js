@@ -2,14 +2,29 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, Dimensions, Image, StyleSheet } from 'react-native'
 import icMenu from '../../../media/appp/ic_menu.png';
 import icLogo from '../../../media/appp/ic_logo.png';
+import global from '../../global';
 
 import { TextInput } from 'react-native-gesture-handler';
+
+import searchProduct from '../../../api/searchProduct';
+
 const { height } = Dimensions.get('window');
 class Header extends Component {
+    constructor(props){
+        super(props);
+    }
     openMenu() {
         const { open } = this.props;
         open();
     }
+
+    onSearch(text){
+        console.log(text);
+        searchProduct(text)
+        .then(arrProduct => global.setArraySearch(arrProduct))
+        .catch(err => global.setArraySearch([]));
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -23,6 +38,10 @@ class Header extends Component {
                 <TextInput
                     style={styles.searchBar}
                     placeholder="What do you want to buy?"
+                    onChangeText={text => {
+                        this.onSearch(text)
+                    }}
+                    onFocus={() => global.gotoSearch()}
                 />
             </View>
         )

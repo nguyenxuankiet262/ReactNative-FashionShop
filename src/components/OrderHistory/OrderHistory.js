@@ -1,22 +1,33 @@
 import React, { Component } from 'react';
 import {
-    View, TouchableOpacity, Text, Image, StyleSheet, Dimensions, FlatList,
+    View, TouchableOpacity, Text, Image, StyleSheet, Dimensions, FlatList,ActivityIndicator
 } from 'react-native';
 import icBack from '../../media/appp/back_white.png';
 import icLogo from '../../media/appp/ic_logo.png';
+import getOrder from '../../api/getOrder';
+import getToken from '../../api/getToken';
 
 export default class OrderHistory extends Component {
     constructor() {
         super();
         this.state = {
-            listOrder: [
-                { Id: 'ORD001', Time: '2017-04-19 08:30:08', Status: 'Pending', Total: '100$' },
-                { Id: 'ORD001', Time: '2017-04-19 08:30:08', Status: 'Pending', Total: '100$' },
-                { Id: 'ORD001', Time: '2017-04-19 08:30:08', Status: 'Pending', Total: '100$' },
-                { Id: 'ORD001', Time: '2017-04-19 08:30:08', Status: 'Pending', Total: '100$' },
-                { Id: 'ORD001', Time: '2017-04-19 08:30:08', Status: 'Pending', Total: '100$' },
-            ],
+            isLoading: true,
+            listOrder: [],
         }
+    }
+
+    componentDidMount(){
+        setTimeout(() => {
+            getToken()
+            .then(token => getOrder(token))
+            .then(order => {
+                this.setState({
+                    isLoading: false,
+                    listOrder: order,
+                })
+            })
+            .catch(err => console.log(err));
+        }, 500);
     }
 
     goBackToMain() {
@@ -31,19 +42,19 @@ export default class OrderHistory extends Component {
             <View style={orderRow}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#9A9A9A', fontWeight: 'bold' }}>Order id:</Text>
-                    <Text style={{ color: '#2ABB9C' }}>{item.Id}</Text>
+                    <Text style={{ color: '#2ABB9C' }}>{item.id}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#9A9A9A', fontWeight: 'bold' }}>OrderTime:</Text>
-                    <Text style={{ color: '#C21C70' }}>{item.Time}</Text>
+                    <Text style={{ color: '#C21C70' }}>{item.date_order}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#9A9A9A', fontWeight: 'bold' }}>Status:</Text>
-                    <Text style={{ color: '#2ABB9C' }}>{item.Status}</Text>
+                    <Text style={{ color: '#2ABB9C' }}>{item.status ? 'Completed' : 'Pending'}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#9A9A9A', fontWeight: 'bold' }}>Total:</Text>
-                    <Text style={{ color: '#C21C70', fontWeight: 'bold' }}>{item.Total}</Text>
+                    <Text style={{ color: '#C21C70', fontWeight: 'bold' }}>{item.total}$</Text>
                 </View>
             </View>
         )
@@ -55,6 +66,15 @@ export default class OrderHistory extends Component {
             row1, iconStyle, titleStyle,
             container, body,
         } = styles;
+
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator />
+                </View>
+            )
+        }
+
         return (
             <View style={container}>
                 <View style={row1}>
@@ -68,6 +88,7 @@ export default class OrderHistory extends Component {
                     <FlatList
                         data={this.state.listOrder}
                         renderItem={this.renderItem}
+                        keyExtractor={() => Math.random().toString(36).substr(2, 9)}
                     />
                 </View>
             </View>

@@ -1,14 +1,32 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
 import profileIcon from '../../media//temp/profile.png';
+import global from '../global';
+import saveToken from '../../api/saveToken';
 
 class Menu extends Component {
     constructor(props) {
         super(props);
-        this.state = { isLogedIn: true };
+        this.state = { user: this.props.user };
+        global.onSignIn = this.onSignIn.bind(this);
     }
+
+    onSignIn(user){
+        this.setState({
+            user
+        })
+    }
+
+    onSignOut(){
+        this.setState({
+            user: null,
+        });
+        saveToken('');
+    }
+
     render() {
-        const { navigate, close } = this.props;
+        const { navigate, close} = this.props;
+        const { user } = this.state;
         const {
             container, profile, btnStyle, btnText,
             btnSignInStyle, btnTextSignIn, loginContainer,
@@ -29,7 +47,7 @@ class Menu extends Component {
         );
         const loginJSX = (
             <View style={loginContainer}>
-                <Text style={username}>Nguyễn Xuân Kiệt</Text>
+                <Text style={username}>{user ? user.name : ''}</Text>
                 <View>
                     <TouchableOpacity style={btnSignInStyle} onPress={() => {
                         close()
@@ -43,20 +61,20 @@ class Menu extends Component {
                     <TouchableOpacity style={btnSignInStyle} onPress={() => {
                         close()
                         setTimeout(() => {
-                            navigate('ChangeInfoScreen')
+                            navigate('ChangeInfoScreen',{user:user})
                         }, 400);
                     }}
                     >
                         <Text style={btnTextSignIn}>Change Info</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={btnSignInStyle}>
+                    <TouchableOpacity style={btnSignInStyle} onPress={this.onSignOut.bind(this)}>
                         <Text style={btnTextSignIn}>Sign out</Text>
                     </TouchableOpacity>
                 </View>
                 <View />
             </View>
         );
-        const mainJSX = this.state.isLogedIn ? loginJSX : logoutJSX;
+        const mainJSX = this.state.user ? loginJSX : logoutJSX;
         return (
             <View style={container}>
                 <Image source={profileIcon} style={profile} />

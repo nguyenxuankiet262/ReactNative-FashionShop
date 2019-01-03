@@ -4,6 +4,8 @@ import Collection from './Collection/Collection';
 import Category from './Category/Category';
 import TopProduct from './TopProduct/TopProduct';
 
+import initData  from '../../../../api/initData'
+
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -17,9 +19,7 @@ class Home extends Component {
 
     componentDidMount() {
         setTimeout(() => {
-            const url = 'http://192.168.1.4/app'
-            fetch(url)
-                .then((response) => response.json())
+            initData()
                 .then((responseJson) => {
                     this.setState({
                         listCategory: responseJson.type,

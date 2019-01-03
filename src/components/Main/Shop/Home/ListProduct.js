@@ -1,25 +1,47 @@
 import React, { Component } from 'react';
 import {
     View, TouchableOpacity,
-    Text, StyleSheet, ScrollView,
-    Image, FlatList
+    Text, StyleSheet, Divider,
+    Image, FlatList, ActivityIndicator, RefreshControl
 } from 'react-native';
-
 import backList from '../../../../media/appp/backList.png';
-import sp1 from '../../../../media/temp/sp1.jpeg';
+
+import getListProduct from '../../../../api/getListProduct';
+
+const url = 'http://192.168.1.4/app/images/product/';
+
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
 
 class ListProduct extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            listProduct: [
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-                {Name: 'Lace Sleeve Si',Price: '117',Material: 'Material silk',Color: 'Colo RoyalBlue'},
-            ],
+            listProduct: [],
+            isLoading: true,
+            refreshing: false,
+            page: 2,
         }
+    }
+
+    componentDidMount() {
+        const { id } = this.props.navigation.getParam('category', 'non');
+        this.loadListProduct(id, 1);
+    }
+
+    loadListProduct(id, page) {
+        setTimeout(() => {
+            getListProduct(id, page)
+                .then(arrProduct => {
+                    this.setState({
+                        listProduct: this.state.listProduct.concat(arrProduct),
+                        isLoading: false,
+                        refreshing: false,
+                    });
+                })
+                .catch(err => console.log(err));
+        }, 500);
     }
 
     renderItem = ({ item }) => {
@@ -32,14 +54,14 @@ class ListProduct extends Component {
                 this.props.navigation.navigate('ProductDetailScreen')
             }}>
                 <View style={productContainer}>
-                    <Image style={productImage} source={sp1} />
+                    <Image style={productImage} source={{ uri: url + item.images[0] }} />
                     <View style={productInfo}>
-                        <Text style={txtName}>{item.Name}</Text>
-                        <Text style={txtPrice}>{item.Price}$</Text>
-                        <Text style={txtMaterial}>{item.Material}</Text>
+                        <Text style={txtName}>{toTitleCase(item.name)}</Text>
+                        <Text style={txtPrice}>{item.price}$</Text>
+                        <Text style={txtMaterial}>{toTitleCase(item.material)}</Text>
                         <View style={lastRowInfo}>
-                            <Text style={txtColor}>{item.Color}</Text>
-                            <View style={{ backgroundColor: 'cyan', height: 16, width: 16, borderRadius: 8 }} />
+                            <Text style={txtColor}>{item.color}</Text>
+                            <View style={{ backgroundColor: item.color.toLowerCase(), height: 16, width: 16, borderRadius: 8 }} />
                             <TouchableOpacity>
                                 <Text style={txtShowDetail}>SHOW DETAILS</Text>
                             </TouchableOpacity>
@@ -54,21 +76,50 @@ class ListProduct extends Component {
         const {
             container, header, wrapper, backStyle, titleStyle,
         } = styles;
+        const { id, name } = this.props.navigation.getParam('category', 'non');
+
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator />
+                </View>
+            )
+        }
         return (
             <View style={container}>
-                <ScrollView style={wrapper}>
+                <View style={wrapper}>
                     <View style={header}>
                         <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                             <Image source={backList} style={backStyle} />
                         </TouchableOpacity>
-                        <Text style={titleStyle}>Party Dress</Text>
+                        <Text style={titleStyle}>{name}</Text>
                         <View style={{ width: 30 }} />
                     </View>
                     <FlatList
                         data={this.state.listProduct}
                         renderItem={this.renderItem}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={() => {
+                                    this.setState({
+                                        page: this.state.page + 1,
+                                        refreshing: true,
+                                    })
+                                    this.loadListProduct(id, this.state.page)
+                                }
+                                }
+                            />
+                        }
+                        onEndReached={() => {
+                            this.setState({
+                                page: this.state.page + 1,
+                            })
+                            this.loadListProduct(id, this.state.page)
+                        }
+                        } 
                     />
-                </ScrollView>
+                </View>
             </View>
         )
     }

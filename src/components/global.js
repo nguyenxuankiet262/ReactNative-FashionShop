@@ -1,4 +1,11 @@
 module.exports = {
     addProductToCart: [],
-    updateBadge: []
+    updateBadge: [],
+    incrQuantity: [],
+    decrQuantity: [],
+    removeProduct: [],
+    onSignIn: null,
+    gotoSearch: null,
+    setArraySearch: [],
+    updateCart: [],
 };

@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import {
     View, Text, TouchableOpacity, FlatList, ActivityIndicator,
-    Dimensions, StyleSheet, Image
+    Dimensions, StyleSheet, Image, Alert,
 } from 'react-native';
+
+import global from '../../../global'
+
+import sendOrder from '../../../../api/sendOrder';
+import getToken from '../../../../api/getToken';
+import clearCart from '../../../../api/clearCart';
 
 function toTitleCase(str) {
     return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -15,13 +21,14 @@ class Cart extends Component {
         super();
         this.state = {
             isLoading: true,
+            index: 0,
         }
     }
 
-    renderItem = ({ item }) => {
+    renderRow = ({ item, index }) => {
         const { product, mainRight, productController,
             txtName, txtPrice, productImage, numberOfProduct,
-            txtShowDetail, showDetailContainer } = styles;
+            } = styles;
         return (
             <TouchableOpacity onPress={() => {
                 this.props.navigation.navigate('ProductDetailScreen', { product: item })
@@ -31,7 +38,7 @@ class Cart extends Component {
                     <View style={[mainRight]}>
                         <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
                             <Text style={txtName}>{toTitleCase(item.name)}</Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => { global.removeProduct(index) }}>
                                 <Text style={{ fontFamily: 'Avenir', color: '#969696' }}>X</Text>
                             </TouchableOpacity>
                         </View>
@@ -40,17 +47,14 @@ class Cart extends Component {
                         </View>
                         <View style={productController}>
                             <View style={numberOfProduct}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => { global.incrQuantity(index) }}>
                                     <Text>+</Text>
                                 </TouchableOpacity>
                                 <Text>{item.quantity}</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => { global.decrQuantity(index) }}>
                                     <Text>-</Text>
                                 </TouchableOpacity>
                             </View>
-                            <TouchableOpacity style={showDetailContainer}>
-                                <Text style={txtShowDetail}>SHOW DETAILS</Text>
-                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -58,16 +62,55 @@ class Cart extends Component {
         )
     }
 
-    componentDidMount(){
+    componentDidMount() {
         setTimeout(() => {
             this.setState({
                 isLoading: false,
-             })
-        },500);
+            })
+        }, 500);
+    }
+
+    onSuccess() {
+        Alert.alert(
+            'Notice',
+            'Order successfully!',
+            [
+                { text: 'OK', onPress: () => {
+                    clearCart()
+                    global.updateCart()
+                }
+            }
+            ],
+            { cancelable: false }
+        );
+    }
+
+    async onSendOrder(){
+        try {
+            const token = await getToken();
+            const arrDetail = this.props.screenProps.map(e => ({
+                id: e.id,
+                quantity: e.quantity,
+            }))
+            if(token !== ''){
+                sendOrder(token, arrDetail);
+                this.onSuccess();
+            }
+        }catch(err){
+            console.log(err);
+        }
     }
 
     render() {
         const { wrapper, checkoutButton, checkoutTitle } = styles;
+        const cartArray  = this.props.screenProps;
+        const arrTotal = cartArray.map(e => e.price * e.quantity);
+        var total;
+        if(arrTotal.length !== 0){
+            total = arrTotal.reduce((a, b) => a + b);
+        }else{
+            total = 0;
+        }
 
         if (this.state.isLoading) {
             return (
@@ -77,15 +120,16 @@ class Cart extends Component {
             )
         }
 
+
         return (
             <View style={wrapper}>
                 <FlatList
-                    data={this.props.screenProps}
-                    renderItem={this.renderItem}
+                    data={cartArray}
+                    renderItem={(item, index) => this.renderRow(item, index)}
                     keyExtractor={() => Math.random().toString(36).substr(2, 9)}
                 />
-                <TouchableOpacity style={checkoutButton}>
-                    <Text style={checkoutTitle}>TOTAL {1000}$ CHECKOUT NOW</Text>
+                <TouchableOpacity style={checkoutButton} onPress={this.onSendOrder.bind(this)}>
+                    <Text style={checkoutTitle}>TOTAL {total}$ CHECKOUT NOW</Text>
                 </TouchableOpacity>
             </View>
         );
